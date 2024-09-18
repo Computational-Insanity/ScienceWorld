@@ -20,6 +20,7 @@ This would then allow the user to easily set up an interactive example/demonstra
 * Can Add/Modify/Move/Remove "simple" mathematical expressions, variables, tables and graphs. [See: Nodes](#nodes)
 * The Expressions can be connected together. [See: Node Connection System](#node-connection-system)
 * Can Save and Load LOCALLY (cloud/online should be implemented eventually but not priority for "1.0"). [See: Saving And Loading](#saving-and-loading)
+* ??
 
 ##### Developer Perspective
 * Planned out and robust interfaces for "nodes"
@@ -42,13 +43,15 @@ To begin with, simply save to local files. At least save all the objects (includ
 #### User Perspetive
 * More Core Nodes
 * Cloud saving
+* Symbol search
 * ??
 
 #### Developer Perspective
 * Module System. [See: Module System](#module-system)
+* ??
 
 ### Module System
-The ability to have only relevant nodes and features installed. For example if you only work with math, then you have little to no use for anything relating to programming. Could create and opening for custom modules to pop up by independent area-experts.
+The ability to have only relevant nodes and features installed. For example if you only work with math, then you have little to no use for anything relating to programming. Could create an opening for custom modules to pop up by independent area-experts.
 
 ## Further Features (When and if they will be implemented not decided)
 * Independently created modules
@@ -57,4 +60,5 @@ The ability to have only relevant nodes and features installed. For example if y
 * [Live Share](https://visualstudio.microsoft.com/services/live-share/) like live collaboration
 * Distributed Compute Within connected group of users
 * Cloud compute (providing service to compute for the user using servers)
-* Distributed Compute by volunteers like, and possibly incorporating, [BIONC](https://boinc.berkeley.edu/).
+* Distributed Compute by volunteers like, and possibly incorporating, [BOINC](https://boinc.berkeley.edu/).
+* [Matlab](https://se.mathworks.com/products/matlab.html) integration (importing/exporting matlab scripts?)(Maybe this would be a module?)(is this legal?)

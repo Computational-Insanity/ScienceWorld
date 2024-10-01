@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+/bin
+/build/.vs/ScienceWorld
+/build/obj
+/build/ScienceWorld.sln
+/build/ScienceWorld.vcxproj
+/build/ScienceWorld.vcxproj.filters
+/build/ScienceWorld.vcxproj.user

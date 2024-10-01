@@ -10,3 +10,5 @@
 /build/ScienceWorld.vcxproj
 /build/ScienceWorld.vcxproj.filters
 /build/ScienceWorld.vcxproj.user
+/build/Makefile
+/build/ScienceWorld.make

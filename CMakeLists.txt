@@ -13,3 +13,8 @@ target_include_directories(ScienceWorld PUBLIC
                           "${CMAKE_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/src/HelloWorlder"
                           )
+                          
+enable_testing()
+
+
+add_subdirectory(tests)

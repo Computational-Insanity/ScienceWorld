@@ -1,4 +1,4 @@
-#include "../../src/HelloWorlder/HelloWorlder.h"
+#include "HelloWorlder.h"
 
 int main() {
     auto _ = HelloWorlder();

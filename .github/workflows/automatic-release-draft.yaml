@@ -1,0 +1,87 @@
+name: Automatic release draft generation
+on:
+  pull_request:
+    types:
+      - closed
+      - opened
+    branches: [stable, beta, dev]
+    
+jobs:
+
+  create_release_draft:
+    name: Create release draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if not prerelease
+        if: github.base_ref = 'ref/heads/stable
+        run: |
+          echo "prerelease_val=false" >> "$GITHUB_ENV"
+
+      - name: Check if alpha
+        if: github.base_ref = 'ref/heads/dev'
+        run: |
+          echo "prerelease_val=true" >> "$GITHUB_ENV"
+          echo "prerelease_name=alpha" >> "$GITHUB_ENV"
+          
+      - name: Handle beta
+        if: github.base_ref = 'ref/heads/beta'
+        run: |
+          echo "prerelease_val=true" >> "$GITHUB_ENV"
+          echo "prerelease_name=beta" >> "$GITHUB_ENV"
+        
+      - uses: release-drafter/release-drafter@v6
+        id: draft
+        with:
+          prerelease: ${{ env.prerelease_val }}
+          prerelease-identifier: ${{ env.prerelease_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  build_and_upload_linux:
+    needs: [create_release_draft]
+    name: Build for linux and upload to release draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+  
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_BUILD_TYPE=Release
+          -S ${{ github.workspace }}
+  
+      - name: Build
+        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+
+      - name: Zip
+        run: zip -r ScienceWorld_${{ jobs.create_release_draft.steps.draft.outputs.tag_name }}_linux.zip ${{ steps.string.outputs.build-output-dir }}/Release
+
+      - name: Upload
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ jobs.create_release_draft.steps.draft.outputs.upload_url }}
+          asset_path: ./ScienceWorld_${{ jobs.create_release_draft.steps.draft.outputs.tag_name }}_linux.zip
+          asset_name: ScienceWorld_${{ jobs.create_release_draft.steps.draft.outputs.tag_name }}_linux.zip
+          asset_content_type: application/zip
+
+  build_and_upload_windows:
+    needs: [create_release_draft]
+    name: build for windows
+    runs-on: windows-latest
+
+    

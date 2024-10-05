@@ -3,6 +3,7 @@ on:
   pull_request:
     types:
       - closed
+      - edited
       - opened
     branches: [stable, beta, dev]
     
@@ -79,9 +80,9 @@ jobs:
           asset_name: ScienceWorld_${{ jobs.create_release_draft.steps.draft.outputs.tag_name }}_linux.zip
           asset_content_type: application/zip
 
-  build_and_upload_windows:
-    needs: [create_release_draft]
-    name: build for windows
-    runs-on: windows-latest
+  #build_and_upload_windows:
+  #  needs: [create_release_draft]
+  #  name: build for windows
+  #  runs-on: windows-latest
 
     

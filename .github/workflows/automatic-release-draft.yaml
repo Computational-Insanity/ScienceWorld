@@ -14,18 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check if not prerelease
-        if: github.base_ref = 'ref/heads/stable
+        if: github.base_ref == 'ref/heads/stable
         run: |
           echo "prerelease_val=false" >> "$GITHUB_ENV"
 
       - name: Check if alpha
-        if: github.base_ref = 'ref/heads/dev'
+        if: github.base_ref == 'ref/heads/dev'
         run: |
           echo "prerelease_val=true" >> "$GITHUB_ENV"
           echo "prerelease_name=alpha" >> "$GITHUB_ENV"
           
       - name: Handle beta
-        if: github.base_ref = 'ref/heads/beta'
+        if: github.base_ref == 'ref/heads/beta'
         run: |
           echo "prerelease_val=true" >> "$GITHUB_ENV"
           echo "prerelease_name=beta" >> "$GITHUB_ENV"

@@ -86,9 +86,10 @@ jobs:
         run: |
           cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
           ls ${{ steps.strings.outputs.build-output-dir }}
+          ls ${{ steps.strings.outputs.build-output-dir }}/bin
 
       - name: Zip
-        run: zip -r ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
+        run: zip -r ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/bin/Release/
 
       - name: Upload
         id: upload-release-asset 

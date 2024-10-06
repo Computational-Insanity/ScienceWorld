@@ -17,6 +17,9 @@ jobs:
       # write permission is required for autolabeler
       # otherwise, read permission is required at least
       pull-requests: write
+    outputs:
+      tag_name: ${{ steps.draft.outputs.tag_name }}
+      upload_url: ${{ steps.draft.outputs.upload_url }}
     runs-on: ubuntu-latest
     steps:
       - name: DEBUG display base ref

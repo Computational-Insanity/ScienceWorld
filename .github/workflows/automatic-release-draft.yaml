@@ -1,6 +1,6 @@
 name: Automatic release draft generation
 on:
-  pull_request_target:
+  pull_request:
     types:
       - closed
       - edited
@@ -41,6 +41,7 @@ jobs:
         with:
           prerelease: ${{ env.prerelease_val }}
           prerelease-identifier: ${{ env.prerelease_name }}
+          commitish: ${{ github.base_ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -11,6 +11,12 @@ jobs:
 
   create_release_draft:
     name: Create release draft
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Check if not prerelease
@@ -72,7 +78,7 @@ jobs:
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
 
       - name: Zip
-        run: zip -r ScienceWorld_${{ env.tag_name }}_linux.zip ${{ steps.string.outputs.build-output-dir }}/Release
+        run: zip -r ScienceWorld_${{ env.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/Release
 
       - name: Upload
         id: upload-release-asset 

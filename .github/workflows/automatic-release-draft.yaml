@@ -51,8 +51,8 @@ jobs:
 
       - name: Save draft info for later jobs
         run: |
-          echo "tag_name=${{ steps.draft.outputs.tag_name }}" >> "$GITHUB_ENV"
-          echo "upload_url=${{ steps.draft.outputs.upload_url }}" >> "$GITHUB_ENV"
+          echo "tag_name=${{ steps.draft.outputs.tag_name }}" >> "$GITHUB_OUTPUT"
+          echo "upload_url=${{ steps.draft.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
   
   build_and_upload_linux:
     needs: [create_release_draft]
@@ -83,7 +83,7 @@ jobs:
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
 
       - name: Zip
-        run: zip -r ScienceWorld_${{ env.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/Release
+        run: zip -r ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
 
       - name: Upload
         id: upload-release-asset 
@@ -91,9 +91,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ env.upload_url }}
-          asset_path: ./ScienceWorld_${{ env.tag_name }}_linux.zip
-          asset_name: ScienceWorld_${{ env.tag_name }}_linux.zip
+          upload_url: ${{ needs.create_release_draft.outputs.upload_url }}
+          asset_path: ./ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip
+          asset_name: ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip
           asset_content_type: application/zip
 
   #build_and_upload_windows:

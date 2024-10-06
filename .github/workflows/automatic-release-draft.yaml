@@ -91,7 +91,7 @@ jobs:
           ls ${{ steps.strings.outputs.build-output-dir }}/bin
 
       - name: Zip
-        run: zip -r ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/bin/
+        run: zip -r ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip ${{ steps.strings.outputs.build-output-dir }}/bin/*
 
       - name: Upload
         id: upload-release-asset 

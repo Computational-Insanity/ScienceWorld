@@ -60,6 +60,8 @@ jobs:
   build_and_upload_linux:
     needs: [create_release_draft]
     name: Build for linux and upload to release draft
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

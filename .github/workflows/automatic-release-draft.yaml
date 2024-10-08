@@ -1,0 +1,154 @@
+name: Automatic release draft generation
+on:
+  pull_request:
+    types:
+      - closed
+    branches: [stable, beta, dev]
+    
+jobs:
+
+  create_release_draft:
+    name: Create release draft
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
+    outputs:
+      tag_name: ${{ steps.draft.outputs.tag_name }}
+      upload_url: ${{ steps.draft.outputs.upload_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: DEBUG display base ref
+        run: |
+          echo "${{ github.base_ref }}"
+    
+      - name: Check if not prerelease
+        if: github.base_ref == 'stable'
+        run: |
+          echo "prerelease_val=false" >> "$GITHUB_ENV"
+
+      - name: Check if alpha
+        if: github.base_ref == 'dev'
+        run: |
+          echo "prerelease_val=true" >> "$GITHUB_ENV"
+          echo "prerelease_name=alpha" >> "$GITHUB_ENV"
+          
+      - name: Handle beta
+        if: github.base_ref == 'beta'
+        run: |
+          echo "prerelease_val=true" >> "$GITHUB_ENV"
+          echo "prerelease_name=beta" >> "$GITHUB_ENV"
+        
+      - uses: release-drafter/release-drafter@v6
+        id: draft
+        with:
+          prerelease: ${{ env.prerelease_val }}
+          prerelease-identifier: ${{ env.prerelease_name }}
+          commitish: ${{ github.base_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save draft info for later jobs
+        run: |
+          echo "tag_name=${{ steps.draft.outputs.tag_name }}" >> "$GITHUB_OUTPUT"
+          echo "upload_url=${{ steps.draft.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
+  
+  build_and_upload_linux:
+    needs: [create_release_draft]
+    name: Build for linux and upload to release draft
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+  
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_BUILD_TYPE=Release
+          -S ${{ github.workspace }}
+  
+      - name: Build
+        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        run: |
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+
+      - name: Zip
+        run: | 
+          cd ${{ steps.strings.outputs.build-output-dir }}/bin
+          zip -r ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip .
+          
+      - name: Upload
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release_draft.outputs.upload_url }}
+          asset_path: ${{ steps.strings.outputs.build-output-dir }}/bin/ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip
+          asset_name: ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip
+          asset_content_type: application/zip
+
+  build_and_upload_windows:
+    needs: [create_release_draft]
+    name: build for windows
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+        - uses: actions/checkout@v4
+
+        - name: Set reusable strings
+          # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+          id: strings
+          shell: bash
+          run: |
+            echo "build-output-dir=${{ github.workspace }}\build" >> "$GITHUB_OUTPUT"
+    
+        - name: Configure CMake
+          # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+          # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+          run: >
+            cmake -B ${{ steps.strings.outputs.build-output-dir }}
+            -DCMAKE_CXX_COMPILER=clang++
+            -DCMAKE_C_COMPILER=clang
+            -DCMAKE_BUILD_TYPE=Release
+            -S ${{ github.workspace }}
+    
+        - name: Build
+          # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+          run: |
+            cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+
+        - name: Zip
+          run: | 
+            cd ${{ steps.strings.outputs.build-output-dir }}\bin
+            7z a ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_windows.zip .
+            
+        - name: Upload
+          id: upload-release-asset 
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ needs.create_release_draft.outputs.upload_url }}
+            asset_path: ${{ steps.strings.outputs.build-output-dir }}\bin\Release\ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_windows.zip
+            asset_name: ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_windows.zip
+            asset_content_type: application/zip
+
+
+
+    

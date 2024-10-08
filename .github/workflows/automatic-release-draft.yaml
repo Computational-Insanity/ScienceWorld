@@ -118,7 +118,7 @@ jobs:
           id: strings
           shell: bash
           run: |
-            echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+            echo "build-output-dir=${{ github.workspace }}\build" >> "$GITHUB_OUTPUT"
     
         - name: Configure CMake
           # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -137,7 +137,7 @@ jobs:
 
         - name: Zip
           run: | 
-            cd ${{ steps.strings.outputs.build-output-dir }}/bin
+            cd ${{ steps.strings.outputs.build-output-dir }}\bin
             7z a ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_linux.zip .
             
         - name: Upload

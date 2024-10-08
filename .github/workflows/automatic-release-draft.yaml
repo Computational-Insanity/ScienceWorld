@@ -135,7 +135,7 @@ jobs:
 
         - name: Zip
           run: | 
-            cd ${{ steps.strings.outputs.build-output-dir }}\bin
+            cd ${{ steps.strings.outputs.build-output-dir }}\bin\Release
             7z a ScienceWorld_${{ needs.create_release_draft.outputs.tag_name }}_windows.zip .
             
         - name: Upload

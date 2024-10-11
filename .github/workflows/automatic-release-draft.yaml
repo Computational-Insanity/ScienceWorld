@@ -1,9 +1,11 @@
 name: Automatic release draft generation
 on:
-  pull_request:
-    types:
-      - closed
-    branches: [stable, beta, dev]
+  workflow_dispatch:
+  
+  # pull_request:
+  #   types:
+  #     - closed
+  #   branches: [stable, beta, dev]
     
 jobs:
 

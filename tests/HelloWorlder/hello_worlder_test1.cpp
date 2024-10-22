@@ -1,7 +1,7 @@
+#include <gtest/gtest.h>
 #include "HelloWorlder.h"
 
-int main() {
-    auto _ = HelloWorlder();
-    _.PrintHelloWorld();
-    return 0;
+TEST(HelloTest, BasicAssertions){
+	EXPECT_TRUE(false);
+
 }
